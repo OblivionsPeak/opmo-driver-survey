@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation eMotorsport — Driver Car Survey</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="favicon.ico">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --accent: #c4a87a;
+  --accent-hover: #b8956a;
+  --accent-dim: rgba(196,168,122,.12);
+  --danger: #f85149;
+  --success: #3fb950;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body {
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(13,17,23,.78),rgba(13,17,23,.78)), url('Spa-2.jpg');
+  background-size: cover;
+  background-position: center 40%;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(196,168,122,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,168,122,.018) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+  z-index: 0;
+}
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+/* ── Brand ── */
+.brand-header { text-align: center; margin-bottom: 36px; }
+.brand-logo { width: 100%; max-width: 480px; height: auto; display: block; margin: 0 auto; }
+.brand-season { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-top: 10px; text-transform: uppercase; }
+.brand-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(196,168,122,.4), transparent); margin: 16px auto 0; width: 70%; }
+
+/* ── Card ── */
+.form-card {
+  background: rgba(22,27,34,.88);
+  border: 1px solid rgba(196,168,122,.2);
+  border-radius: 14px;
+  padding: 36px 32px;
+  backdrop-filter: blur(6px);
+}
+.form-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.form-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+/* ── Fields ── */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 20px; }
+.form-group.full { grid-column: 1 / -1; }
+label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input:focus { border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
+.field-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.field-hint a { color: var(--accent); }
+
+/* ── Car pills (multi-select) ── */
+.car-note { font-size: 11px; color: var(--muted); margin: -2px 0 10px; }
+.car-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.car-pill {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 10px 6px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all .15s; text-align: center;
+  user-select: none;
+}
+.car-pill input[type=checkbox] { display: none; }
+.car-pill .pill-name { font-size: 12px; font-weight: 700; color: var(--muted); transition: color .15s; }
+.car-pill .pill-sub { font-size: 10px; color: var(--muted); opacity: .6; }
+.car-pill:hover { border-color: var(--accent); }
+.car-pill:hover .pill-name { color: var(--accent); }
+.car-pill.selected { background: var(--accent-dim); border-color: var(--accent); }
+.car-pill.selected .pill-name { color: var(--accent); }
+.car-pill.selected .pill-sub { color: var(--accent); opacity: .9; }
+.car-count { font-size: 11px; color: var(--muted); margin-top: 8px; }
+.car-count b { color: var(--accent); }
+
+/* ── Errors ── */
+.field-error { font-size: 11px; color: var(--danger); margin-top: 4px; display: none; }
+.field-error.show { display: block; }
+input.invalid { border-color: var(--danger) !important; }
+.car-group.invalid .car-pill { border-color: rgba(248,81,73,.5); }
+
+/* ── Submit ── */
+.btn-submit {
+  width: 100%; padding: 13px;
+  background: var(--accent); color: #0d1117;
+  border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 800; letter-spacing: .5px;
+  cursor: pointer; transition: background .15s, transform .1s;
+  margin-top: 8px;
+}
+.btn-submit:hover { background: var(--accent-hover); }
+.btn-submit:active { transform: scale(.98); }
+.btn-submit:disabled { opacity: .6; cursor: default; }
+
+.submit-error {
+  display: none;
+  background: rgba(248,81,73,.1);
+  border: 1px solid rgba(248,81,73,.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+.submit-error.show { display: block; }
+
+/* ── Success ── */
+.success-card { display: none; text-align: center; padding: 40px 10px; }
+.success-card.show { display: block; }
+.success-icon { font-size: 52px; margin-bottom: 16px; }
+.success-title { font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+.success-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.btn-secondary {
+  padding: 10px 22px;
+  background: transparent; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 8px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all .15s;
+}
+.btn-secondary:hover { background: var(--accent-dim); }
+
+.page-footer { text-align: center; margin-top: 28px; font-size: 11px; color: var(--muted); opacity: .6; }
+
+/* honeypot — visually gone, still in the DOM for bots to fill */
+.hp-field { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+
+@media (max-width: 560px) {
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .car-group { grid-template-columns: repeat(3, 1fr); }
+  .form-card { padding: 28px 20px; }
+}
+@media (max-width: 400px) {
+  .car-group { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header class="brand-header">
+    <img class="brand-logo" src="OpMo_eMotorsport_League_red_TPBG_NEG.png" alt="Operation eMotorsport League">
+    <div class="brand-season">Driver Car Survey</div>
+    <div class="brand-divider"></div>
+  </header>
+
+  <div class="form-card">
+
+    <form id="survey-form" novalidate>
+      <div class="form-title">Which cars are you comfortable in?</div>
+      <div class="form-subtitle">
+        Tell us who you are and which road course cars you're confident racing.
+        This helps us plan classes, teams, and driver pairings.
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="first-name">First Name</label>
+          <input id="first-name" name="firstName" type="text" autocomplete="given-name" placeholder="Ricky">
+          <div class="field-error" id="err-first">First name is required.</div>
+        </div>
+        <div class="form-group">
+          <label for="last-name">Last Name</label>
+          <input id="last-name" name="lastName" type="text" autocomplete="family-name" placeholder="Bobby">
+          <div class="field-error" id="err-last">Last name is required.</div>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label for="iracing-id">iRacing Customer ID</label>
+        <input id="iracing-id" name="iracingId" type="text" inputmode="numeric" placeholder="123456" maxlength="8" spellcheck="false">
+        <div class="field-hint">
+          Find it in the iRacing member site under Account, or on your license card next to your name.
+        </div>
+        <div class="field-error" id="err-id">Enter your numeric iRacing customer ID.</div>
+      </div>
+
+      <div class="form-group full">
+        <label>Road Course Cars</label>
+        <div class="car-note">Select every class you're comfortable driving — as many as apply.</div>
+        <div class="car-group" id="car-group"></div>
+        <div class="car-count" id="car-count">No cars selected yet.</div>
+        <div class="field-error" id="err-cars">Pick at least one car class.</div>
+      </div>
+
+      <!-- honeypot: real users never see or fill this -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button class="btn-submit" id="btn-submit" type="submit">Submit Survey</button>
+      <div class="submit-error" id="submit-error"></div>
+    </form>
+
+    <div class="success-card" id="success-card">
+      <div class="success-icon">🏁</div>
+      <div class="success-title">Thanks — you're on the grid!</div>
+      <div class="success-sub" id="success-sub"></div>
+      <button class="btn-secondary" id="btn-another">Submit another driver</button>
+    </div>
+
+  </div>
+
+  <div class="page-footer">Operation Motorsport eMotorsport League</div>
+</div>
+
+<script>
+// Paste your Google Apps Script Web App URL here — see SETUP.md
+const APPS_SCRIPT_URL = '';
+
+// Road course car classes — the pill grid is built from this list, so
+// adding a class here is the only change needed.
+const CAR_CLASSES = [
+  { id: 'GTP',         sub: 'Prototype' },
+  { id: 'LMP2',        sub: 'Prototype' },
+  { id: 'LMP3',        sub: 'Prototype' },
+  { id: 'GT3',         sub: 'GT' },
+  { id: 'GT4',         sub: 'GT' },
+  { id: 'TCR',         sub: 'Touring' },
+  { id: 'GR Cup',      sub: 'Toyota GR86' },
+  { id: 'Miatas',      sub: 'MX-5 Cup' },
+  { id: 'BMW M Cup',   sub: 'M2 CS Racing' },
+  { id: 'Porsche Cup', sub: '992 Cup' },
+  { id: 'Ferrari Cup', sub: '296 Challenge' },
+];
+
+const $ = (id) => document.getElementById(id);
+
+// ── build the car pill grid ──
+const carGroup = $('car-group');
+CAR_CLASSES.forEach(c => {
+  const pill = document.createElement('label');
+  pill.className = 'car-pill';
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.value = c.id;
+  const name = document.createElement('span');
+  name.className = 'pill-name';
+  name.textContent = c.id;
+  const sub = document.createElement('span');
+  sub.className = 'pill-sub';
+  sub.textContent = c.sub;
+  pill.append(cb, name, sub);
+  cb.addEventListener('change', () => {
+    pill.classList.toggle('selected', cb.checked);
+    carGroup.classList.remove('invalid');
+    $('err-cars').classList.remove('show');
+    updateCount();
+  });
+  carGroup.appendChild(pill);
+});
+
+function selectedCars() {
+  return [...carGroup.querySelectorAll('input:checked')].map(cb => cb.value);
+}
+
+function updateCount() {
+  const n = selectedCars().length;
+  $('car-count').innerHTML = n
+    ? `<b>${n}</b> class${n === 1 ? '' : 'es'} selected`
+    : 'No cars selected yet.';
+}
+
+// ── validation ──
+function setInvalid(input, errId, bad) {
+  input.classList.toggle('invalid', bad);
+  $(errId).classList.toggle('show', bad);
+  return bad;
+}
+
+['first-name', 'last-name', 'iracing-id'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    $(id).classList.remove('invalid');
+    const err = { 'first-name': 'err-first', 'last-name': 'err-last', 'iracing-id': 'err-id' }[id];
+    $(err).classList.remove('show');
+  });
+});
+
+function validate() {
+  let bad = false;
+  bad = setInvalid($('first-name'), 'err-first', !$('first-name').value.trim()) || bad;
+  bad = setInvalid($('last-name'), 'err-last', !$('last-name').value.trim()) || bad;
+  bad = setInvalid($('iracing-id'), 'err-id', !/^\d{1,8}$/.test($('iracing-id').value.trim())) || bad;
+  if (selectedCars().length === 0) {
+    carGroup.classList.add('invalid');
+    $('err-cars').classList.add('show');
+    bad = true;
+  }
+  return !bad;
+}
+
+// ── submit ──
+$('survey-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errBox = $('submit-error');
+  errBox.classList.remove('show');
+
+  if ($('website').value) return; // honeypot tripped — silently drop
+  if (!validate()) return;
+
+  if (!APPS_SCRIPT_URL) {
+    errBox.textContent = 'This form is not connected to its spreadsheet yet — the APPS_SCRIPT_URL is missing. See SETUP.md.';
+    errBox.classList.add('show');
+    return;
+  }
+
+  const btn = $('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const params = new URLSearchParams({
+    firstName: $('first-name').value.trim(),
+    lastName: $('last-name').value.trim(),
+    iracingId: $('iracing-id').value.trim(),
+    cars: selectedCars().join(', '),
+  });
+
+  try {
+    // no-cors: Apps Script accepts the POST but the response is opaque —
+    // reaching this line without a network error is our success signal
+    await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params });
+    $('success-sub').textContent =
+      `${$('first-name').value.trim()}, your car list is in: ${selectedCars().join(', ')}.`;
+    $('survey-form').style.display = 'none';
+    $('success-card').classList.add('show');
+  } catch {
+    errBox.textContent = 'Could not reach the server — check your connection and try again.';
+    errBox.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit Survey';
+  }
+});
+
+// ── submit another ──
+$('btn-another').addEventListener('click', () => {
+  $('survey-form').reset();
+  carGroup.querySelectorAll('.car-pill').forEach(p => p.classList.remove('selected'));
+  updateCount();
+  $('success-card').classList.remove('show');
+  $('survey-form').style.display = '';
+});
+</script>
+</body>
+</html>
